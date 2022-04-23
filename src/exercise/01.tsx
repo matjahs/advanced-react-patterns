@@ -9,10 +9,11 @@ import {dequal} from "dequal";
 import * as userClient from "../user-client";
 import {useAuth} from "../auth-context";
 
+// @ts-ignore
 const UserContext = React.createContext();
 UserContext.displayName = "UserContext";
 
-function userReducer(state, action) {
+function userReducer(state: any, action: any) {
   switch (action.type) {
     case "start update": {
       return {
@@ -53,7 +54,7 @@ function userReducer(state, action) {
   }
 }
 
-function UserProvider({children}) {
+function UserProvider({children}: any) {
   const {user} = useAuth();
   const [state, dispatch] = React.useReducer(userReducer, {
     status: null,
@@ -65,7 +66,7 @@ function UserProvider({children}) {
   return <UserContext.Provider value={value}>{children}</UserContext.Provider>;
 }
 
-function useUser() {
+function useUser(): any {
   const context = React.useContext(UserContext);
   if (context === undefined) {
     throw new Error(`useUser must be used within a UserProvider`);
@@ -91,11 +92,11 @@ function UserSettings() {
 
   const isChanged = !dequal(user, formState);
 
-  function handleChange(e) {
+  function handleChange(e: any) {
     setFormState({...formState, [e.target.name]: e.target.value});
   }
 
-  function handleSubmit(event) {
+  function handleSubmit(event: any) {
     event.preventDefault();
     // 🐨 move the following logic to the `updateUser` function you create above
     userDispatch({type: "start update", updates: formState});

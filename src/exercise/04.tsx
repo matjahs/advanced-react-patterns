@@ -4,7 +4,7 @@
 import * as React from "react";
 import {Switch} from "../switch";
 
-function useToggle() {
+function useToggle(): any {
   const [on, setOn] = React.useState(false);
   const toggle = () => setOn(!on);
 

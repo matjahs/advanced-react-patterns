@@ -6,7 +6,7 @@
   "version": "1.0.0",
   "private": true,
   "keywords": [],
-  "homepage": "http://advanced-react-patterns.netlify.app/",
+  "homepage": "https://advanced-react-patterns.netlify.app/",
   "license": "GPL-3.0-only",
   "main": "src/index.js",
   "engines": {
@@ -21,7 +21,8 @@
     "dequal": "^2.0.2",
     "lodash": "^4.17.21",
     "react": "^18.0.0",
-    "react-dom": "^18.0.0"
+    "react-dom": "^18.0.0",
+    "typescript": "^4.6.3"
   },
   "devDependencies": {
     "@types/react": "^18.0.4",

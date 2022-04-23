@@ -5,8 +5,8 @@ import * as React from "react";
 import {Switch} from "../switch";
 
 const callAll =
-  (...fns) =>
-  (...args) =>
+  (...fns: any[]) =>
+  (...args: any[]) =>
     fns.forEach(fn => fn?.(...args));
 
 const actionTypes = {
@@ -14,7 +14,7 @@ const actionTypes = {
   reset: "reset",
 };
 
-function toggleReducer(state, {type, initialState}) {
+function toggleReducer(state: any, {type, initialState}: any) {
   switch (type) {
     case actionTypes.toggle: {
       return {on: !state.on};
@@ -31,10 +31,10 @@ function toggleReducer(state, {type, initialState}) {
 function useToggle({
   initialOn = false,
   reducer = toggleReducer,
-  // 🐨 add an `onChange` prop.
-  // 🐨 add an `on` option here
-  // 💰 you can alias it to `controlledOn` to avoid "variable shadowing."
-} = {}) {
+}: // 🐨 add an `onChange` prop.
+// 🐨 add an `on` option here
+// 💰 you can alias it to `controlledOn` to avoid "variable shadowing."
+any = {}) {
   const {current: initialState} = React.useRef({on: initialOn});
   const [state, dispatch] = React.useReducer(reducer, initialState);
   // 🐨 determine whether on is controlled and assign that to `onIsControlled`
@@ -42,7 +42,7 @@ function useToggle({
 
   // 🐨 Replace the next line with assigning `on` to `controlledOn` if
   // `onIsControlled`, otherwise, it should be `state.on`.
-  const {on} = state;
+  const {on} = state as any;
 
   // We want to call `onChange` any time we need to make a state change, but we
   // only want to call `dispatch` if `!onIsControlled` (otherwise we could get
@@ -69,10 +69,12 @@ function useToggle({
   // so keep that in mind when you call it! How could you avoid calling it if it's not passed?
 
   // make these call `dispatchWithOnChange` instead
+  // @ts-ignore
   const toggle = () => dispatch({type: actionTypes.toggle});
+  // @ts-ignore
   const reset = () => dispatch({type: actionTypes.reset, initialState});
 
-  function getTogglerProps({onClick, ...props} = {}) {
+  function getTogglerProps({onClick, ...props}: any = {}) {
     return {
       "aria-pressed": on,
       onClick: callAll(onClick, toggle),
@@ -80,7 +82,7 @@ function useToggle({
     };
   }
 
-  function getResetterProps({onClick, ...props} = {}) {
+  function getResetterProps({onClick, ...props}: any = {}) {
     return {
       onClick: callAll(onClick, reset),
       ...props,
@@ -96,7 +98,7 @@ function useToggle({
   };
 }
 
-function Toggle({on: controlledOn, onChange}) {
+function Toggle({on: controlledOn, onChange}: any) {
   const {on, getTogglerProps} = useToggle({on: controlledOn, onChange});
   const props = getTogglerProps({on});
   return <Switch {...props} />;
@@ -106,7 +108,7 @@ function App() {
   const [bothOn, setBothOn] = React.useState(false);
   const [timesClicked, setTimesClicked] = React.useState(0);
 
-  function handleToggleChange(state, action) {
+  function handleToggleChange(state: any, action: any) {
     if (action.type === actionTypes.toggle && timesClicked > 4) {
       return;
     }
@@ -138,7 +140,7 @@ function App() {
       <div>
         <div>Uncontrolled Toggle:</div>
         <Toggle
-          onChange={(...args) =>
+          onChange={(...args: any[]) =>
             console.info("Uncontrolled Toggle onChange", ...args)
           }
         />

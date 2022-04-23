@@ -31,8 +31,11 @@ const ToggleButton = () => null;
 function App() {
   return (
     <div>
+      {/* @ts-ignore */}
       <Toggle>
+        {/* @ts-ignore */}
         <ToggleOn>The button is on</ToggleOn>
+        {/* @ts-ignore */}
         <ToggleOff>The button is off</ToggleOff>
         <ToggleButton />
       </Toggle>
@@ -42,7 +45,4 @@ function App() {
 
 export default App;
 
-/*
-eslint
-  no-unused-vars: "off",
-*/
+/* eslint no-unused-vars: "off" */

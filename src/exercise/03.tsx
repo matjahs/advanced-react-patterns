@@ -7,7 +7,7 @@ import {Switch} from "../switch";
 // 🐨 create your ToggleContext context here
 // 📜 https://reactjs.org/docs/context.html#reactcreatecontext
 
-function Toggle({children}) {
+function Toggle({children}: any) {
   const [on, setOn] = React.useState(false);
   const toggle = () => setOn(!on);
 
@@ -27,17 +27,17 @@ function Toggle({children}) {
 // your context won't be exposed to the user
 // 💰 `const context = React.useContext(ToggleContext)`
 // 📜 https://reactjs.org/docs/hooks-reference.html#usecontext
-function ToggleOn({on, children}) {
+function ToggleOn({on, children}: any) {
   return on ? children : null;
 }
 
 // 🐨 do the same thing to this that you did to the ToggleOn component
-function ToggleOff({on, children}) {
+function ToggleOff({on, children}: any) {
   return on ? null : children;
 }
 
 // 🐨 get `on` and `toggle` from the ToggleContext with `useContext`
-function ToggleButton({on, toggle, ...props}) {
+function ToggleButton({on, toggle, ...props}: any) {
   return <Switch on={on} onClick={toggle} {...props} />;
 }
 
