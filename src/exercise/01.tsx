@@ -9,16 +9,35 @@ import {dequal} from "dequal";
 import * as userClient from "../user-client";
 import {useAuth} from "../auth-context";
 
+interface User {
+  username?: string;
+  tagline?: string;
+  bio?: string;
+}
+
+interface State {
+  user: User | null;
+  status: null | "pending" | "resolved" | "rejected";
+  error: Error | null;
+  storedUser: User | null;
+}
+
+type Action =
+  | {type: "start update"; updates: Partial<User>}
+  | {type: "finish update"; updatedUser: User}
+  | {type: "fail update"; error: Error}
+  | {type: "reset"};
+
 // @ts-ignore
-const UserContext = React.createContext();
+const UserContext = React.createContext<[State, React.Dispatch<Action>]>();
 UserContext.displayName = "UserContext";
 
-function userReducer(state: any, action: any) {
+function userReducer(state: State, action: Action): State {
   switch (action.type) {
     case "start update": {
       return {
         ...state,
-        user: {...state.user, ...action.updates},
+        user: state.user ? {...state.user, ...action.updates} : action.updates,
         status: "pending",
         storedUser: state.user,
       };
@@ -49,6 +68,7 @@ function userReducer(state: any, action: any) {
       };
     }
     default: {
+      // @ts-expect-error all action types are already handled
       throw new Error(`Unhandled action type: ${action.type}`);
     }
   }
@@ -61,12 +81,12 @@ function UserProvider({children}: any) {
     error: null,
     storedUser: user,
     user,
-  });
-  const value = [state, dispatch];
+  } as State);
+  const value: [State, React.Dispatch<Action>] = [state, dispatch];
   return <UserContext.Provider value={value}>{children}</UserContext.Provider>;
 }
 
-function useUser(): any {
+function useUser() {
   const context = React.useContext(UserContext);
   if (context === undefined) {
     throw new Error(`useUser must be used within a UserProvider`);
@@ -74,14 +94,29 @@ function useUser(): any {
   return context;
 }
 
-// 🐨 add a function here called `updateUser`
-// Then go down to the `handleSubmit` from `UserSettings` and put that logic in
-// this function. It should accept: dispatch, user, and updates
+async function updateUser(
+  dispatch: React.Dispatch<any>,
+  user: User | null,
+  updates: Partial<User> | null,
+) {
+  dispatch({type: "start update", updates});
 
-// export {UserProvider, useUser}
+  try {
+    const updatedUser = await userClient.updateUser(user, updates);
+    dispatch({type: "finish update", updatedUser});
+
+    return updatedUser;
+  } catch (error) {
+    dispatch({type: "fail update", error});
+
+    return Promise.reject(error);
+  }
+}
+
+// export {UserProvider, useUser, updateUser}
 
 // src/screens/user-profile.js
-// import {UserProvider, useUser} from './context/user-context'
+// import {UserProvider, updateUser, useUser} from './context/user-context'
 function UserSettings() {
   const [{user, status, error}, userDispatch] = useUser();
 
@@ -98,12 +133,8 @@ function UserSettings() {
 
   function handleSubmit(event: any) {
     event.preventDefault();
-    // 🐨 move the following logic to the `updateUser` function you create above
-    userDispatch({type: "start update", updates: formState});
-    userClient.updateUser(user, formState).then(
-      updatedUser => userDispatch({type: "finish update", updatedUser}),
-      error => userDispatch({type: "fail update", error}),
-    );
+
+    updateUser(userDispatch, user, formState).catch(console.error);
   }
 
   return (
@@ -117,7 +148,7 @@ function UserSettings() {
           name="username"
           disabled
           readOnly
-          value={formState.username}
+          value={formState?.username}
           style={{width: "100%"}}
         />
       </div>
@@ -128,7 +159,7 @@ function UserSettings() {
         <input
           id="tagline"
           name="tagline"
-          value={formState.tagline}
+          value={formState?.tagline}
           onChange={handleChange}
           style={{width: "100%"}}
         />
@@ -140,7 +171,7 @@ function UserSettings() {
         <textarea
           id="bio"
           name="bio"
-          value={formState.bio}
+          value={formState?.bio}
           onChange={handleChange}
           style={{width: "100%"}}
         />
@@ -168,7 +199,7 @@ function UserSettings() {
             ? "Submit"
             : "✔"}
         </button>
-        {isRejected ? <pre style={{color: "red"}}>{error.message}</pre> : null}
+        {isRejected ? <pre style={{color: "red"}}>{error?.message}</pre> : null}
       </div>
     </form>
   );
