@@ -2,6 +2,7 @@
 // http://localhost:3000/isolated/exercise/06.js
 
 import * as React from "react";
+import warning from "warning";
 import {Switch} from "../switch";
 
 const callAll =
@@ -37,6 +38,7 @@ function useToggle({
   reducer = toggleReducer,
   onChange,
   on: controlledOn,
+  readOnly = false,
 }: any = {}) {
   const {current: initialState} = React.useRef({on: initialOn});
   const [state, dispatch] = React.useReducer<typeof toggleReducer>(
@@ -46,6 +48,14 @@ function useToggle({
 
   const onIsControlled = controlledOn != null;
   const on = onIsControlled ? controlledOn : state.on;
+
+  const hasOnChange = Boolean(onChange);
+  React.useEffect(() => {
+    warning(
+      !(!hasOnChange && onIsControlled && !readOnly),
+      `Warning: Failed prop type: You provided a \`value\` prop to a form field without an \`onChange\` handler. This will render a read-only field. If the field should be mutable use \`defaultValue\`. Otherwise, set either \`onChange\` or \`readOnly\`.`,
+    );
+  }, [hasOnChange, onIsControlled, readOnly]);
 
   function dispatchWithOnChange(action: any) {
     if (!onIsControlled) {
@@ -82,8 +92,12 @@ function useToggle({
   };
 }
 
-function Toggle({on: controlledOn, onChange}: any) {
-  const {on, getTogglerProps} = useToggle({on: controlledOn, onChange});
+function Toggle({on: controlledOn, onChange, readOnly = false}: any) {
+  const {on, getTogglerProps} = useToggle({
+    on: controlledOn,
+    onChange,
+    readOnly,
+  });
   const props = getTogglerProps({on});
   return <Switch {...props} />;
 }
