@@ -4,14 +4,24 @@
 import * as React from "react";
 import {Switch} from "../switch";
 
-function useToggle(): any {
+interface TogglerProps {
+  "aria-pressed": boolean;
+  onClick: () => void;
+}
+
+interface UseToggle {
+  on: boolean;
+  toggle: () => void;
+  togglerProps: TogglerProps;
+}
+
+function useToggle(): UseToggle {
   const [on, setOn] = React.useState(false);
   const toggle = () => setOn(!on);
 
-  // 🐨 Add a property called `togglerProps`. It should be an object that has
-  // `aria-pressed` and `onClick` properties.
-  // 💰 {'aria-pressed': on, onClick: toggle}
-  return {on, toggle};
+  const togglerProps: TogglerProps = {"aria-pressed": on, onClick: toggle};
+
+  return {on, toggle, togglerProps};
 }
 
 function App() {
