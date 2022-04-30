@@ -49,6 +49,18 @@ function useToggle({
   const onIsControlled = controlledOn != null;
   const on = onIsControlled ? controlledOn : state.on;
 
+  const {current: onWasControlled} = React.useRef(onIsControlled);
+  React.useEffect(() => {
+    warning(
+      !(onIsControlled && !onWasControlled),
+      `Warning: A component is changing an uncontrolled input of type undefined to be controlled. Input elements should not switch from uncontrolled to controlled (or vice versa). Decide between using a controlled or uncontrolled input element for the lifetime of the component. More info: https://fb.me/react-controlled-components`,
+    );
+    warning(
+      !(!onIsControlled && onWasControlled),
+      `Warning: A component is changing a controlled input of type undefined to be uncontrolled. Input elements should not switch from controlled to uncontrolled (or vice versa). Decide between using a controlled or uncontrolled input element for the lifetime of the component. More info: https://fb.me/react-controlled-components`,
+    );
+  }, [onIsControlled, onWasControlled]);
+
   const hasOnChange = Boolean(onChange);
   React.useEffect(() => {
     warning(
@@ -103,7 +115,7 @@ function Toggle({on: controlledOn, onChange, readOnly = false}: any) {
 }
 
 function App() {
-  const [bothOn, setBothOn] = React.useState(false);
+  const [bothOn, setBothOn] = React.useState<boolean | undefined>();
   const [timesClicked, setTimesClicked] = React.useState(0);
 
   function handleToggleChange(state: any, action: any) {
